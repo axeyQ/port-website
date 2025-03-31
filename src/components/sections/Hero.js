@@ -6,26 +6,15 @@ import Canvas from '@/components/three/Canvas';
 import UniverseScene from '@/components/three/UniverseScene';
 import useMousePosition from '@/hooks/useMousePosition';
 import useScrollAnimation from '@/hooks/useScrollAnimation';
+import { PrimaryMagneticButton, SecondaryMagneticButton } from '@/components/ui/MagneticButton';
+import { AnimatedText, Typewriter } from '@/components/ui/TextAnimation';
+import { ParallaxSection } from '@/components/ui/ParallaxEffect';
 
 export default function Hero() {
   const [mounted, setMounted] = useState(false);
   const { normalizedPosition } = useMousePosition();
   const containerRef = useRef(null);
   const { scrollY } = useScrollAnimation();
-  
-  // Text animation variants
-  const textVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: 0.1 * i,
-        duration: 0.8,
-        ease: [0.165, 0.84, 0.44, 1],
-      },
-    }),
-  };
   
   // Ensure component is mounted before rendering Three.js
   useEffect(() => {
@@ -45,24 +34,26 @@ export default function Hero() {
       )}
       
       {/* Parallax stars background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <ParallaxSection
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        strength={0.1}
+      >
         <div 
           className="absolute inset-0 z-0" 
           style={{
             backgroundImage: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.005) 0%, rgba(255, 255, 255, 0) 8%)',
             backgroundSize: '50px 50px',
             backgroundPosition: '0 0',
-            transform: `translateY(${scrollY * 0.2}px)`,
           }}
         />
-      </div>
+      </ParallaxSection>
       
       {/* Scroll indicator */}
       <motion.div 
-        className="absolute bottom-8 flex flex-col items-center"
+        className="absolute bottom-8 flex flex-col items-center z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
+        transition={{ delay: 3.5, duration: 1 }}
       >
         <motion.div
           animate={{ y: [0, 10, 0] }}
@@ -78,60 +69,69 @@ export default function Hero() {
       
       <div className="container mx-auto px-4 z-10">
         <div className="max-w-4xl mx-auto text-center">
-          <motion.h2
-            custom={0}
-            initial="hidden"
-            animate="visible"
-            variants={textVariants}
-            className="text-xl md:text-2xl text-sky-400 font-medium mb-4"
-          >
-            Hello, I&apos;m a
-          </motion.h2>
+          <div className="overflow-hidden mb-4">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <Typewriter
+                text="Hello, I'm a"
+                speed={80}
+                delay={500}
+                className="text-xl md:text-2xl text-sky-400 font-medium"
+              />
+            </motion.div>
+          </div>
           
-          <motion.h1
-            custom={1}
-            initial="hidden"
-            animate="visible"
-            variants={textVariants}
-            className="text-5xl md:text-7xl font-bold mb-6"
-          >
-            Creative Developer
-          </motion.h1>
+          <div className="mb-6">
+            <AnimatedText
+              text="Creative Developer"
+              type="chars"
+              animation="wave"
+              staggerChildren={0.03}
+              delayChildren={1.5}
+              className="text-5xl md:text-7xl font-bold"
+            />
+          </div>
           
-          <motion.p
-            custom={2}
-            initial="hidden"
-            animate="visible"
-            variants={textVariants}
-            className="text-xl md:text-2xl mb-12 max-w-2xl mx-auto text-gray-300"
+          <ParallaxSection
+            strength={0.05}
+            className="mb-12"
           >
-            Building interactive and immersive web experiences with cutting-edge technologies.
-          </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 2.2 }}
+              className="text-xl md:text-2xl max-w-2xl mx-auto text-gray-300"
+            >
+              Building interactive and immersive web experiences with cutting-edge technologies.
+            </motion.p>
+          </ParallaxSection>
           
           <motion.div
-            custom={3}
-            initial="hidden"
-            animate="visible"
-            variants={textVariants}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 2.8 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <motion.a
+            <PrimaryMagneticButton
+              as="a"
               href="#projects"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
               className="bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-300"
+              magneticStrength={0.4}
             >
               View Projects
-            </motion.a>
+            </PrimaryMagneticButton>
             
-            <motion.a
+            <SecondaryMagneticButton
+              as="a"
               href="#contact"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
               className="bg-transparent hover:bg-white/10 border border-white text-white font-semibold py-3 px-8 rounded-lg transition duration-300"
+              magneticStrength={0.4}
             >
               Contact Me
-            </motion.a>
+            </SecondaryMagneticButton>
           </motion.div>
         </div>
       </div>

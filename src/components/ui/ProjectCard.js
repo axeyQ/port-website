@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project, onViewDetails }) {
   const [isHovered, setIsHovered] = useState(false);
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const cardRef = useRef(null);
@@ -99,8 +99,8 @@ export default function ProjectCard({ project }) {
         </p>
         
         <div className="flex items-center justify-between" style={{ transform: 'translateZ(15px)' }}>
-          <motion.a
-            href="#"
+          <motion.button
+            onClick={() => onViewDetails(project)}
             className="text-sky-400 hover:text-sky-300 font-medium flex items-center gap-1 transition-colors"
             whileHover={{ x: 5 }}
           >
@@ -119,7 +119,7 @@ export default function ProjectCard({ project }) {
               <path d="M5 12h14"></path>
               <path d="M12 5l7 7-7 7"></path>
             </svg>
-          </motion.a>
+          </motion.button>
           
           <motion.a
             href="#"
