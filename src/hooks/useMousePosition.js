@@ -3,11 +3,16 @@
 import { useState, useEffect } from 'react';
 import { throttle } from '@/lib/utils';
 
-export default function useMousePosition() {
+export function useMousePosition() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [normalizedPosition, setNormalizedPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    // Default position at center
+    if (typeof window !== 'undefined') {
+      setPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    }
+    
     const updateMousePosition = throttle(event => {
       setPosition({ x: event.clientX, y: event.clientY });
       
@@ -27,3 +32,5 @@ export default function useMousePosition() {
 
   return { position, normalizedPosition };
 }
+
+export default useMousePosition;
