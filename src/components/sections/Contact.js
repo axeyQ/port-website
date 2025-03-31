@@ -1,10 +1,14 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { ScrollTrigger, ScrollTriggerGroup } from '@/components/ui/ScrollTrigger';
+import { gsap } from 'gsap';
 
 export default function Contact() {
   const containerRef = useRef(null);
+  const formRef = useRef(null);
+  const cursorRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.3 });
   
   const [formData, setFormData] = useState({
@@ -17,6 +21,52 @@ export default function Contact() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [activeField, setActiveField] = useState(null);
+  
+  // Typing cursor animation
+  useEffect(() => {
+    if (formRef.current && cursorRef.current && isInView) {
+      // Animate cursor to each input field
+      const inputFields = formRef.current.querySelectorAll('input, textarea');
+      const tl = gsap.timeline({ repeat: 0, repeatDelay: 1 });
+      
+      inputFields.forEach((field, index) => {
+        if (index === 0) {
+          // Move to first field
+          tl.to(cursorRef.current, {
+            duration: 0.8,
+            x: field.getBoundingClientRect().left + 20,
+            y: field.getBoundingClientRect().top + 20,
+            ease: "power2.inOut"
+          });
+        } else {
+          // Move to subsequent fields
+          tl.to(cursorRef.current, {
+            duration: 0.8,
+            x: field.getBoundingClientRect().left + 20,
+            y: field.getBoundingClientRect().top + 20,
+            ease: "power2.inOut"
+          }, "+=0.5");
+        }
+        
+        // Type effect
+        tl.to({}, {
+          duration: 0.5,
+          onStart: () => setActiveField(field.id),
+          onComplete: () => setActiveField(null)
+        }, "+=0.5");
+      });
+      
+      // Move cursor out
+      tl.to(cursorRef.current, {
+        duration: 0.8,
+        x: '100%',
+        y: '100%',
+        opacity: 0,
+        ease: "power2.inOut"
+      }, "+=0.5");
+    }
+  }, [isInView]);
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,54 +146,31 @@ export default function Contact() {
       setIsSubmitting(false);
     }
   };
-  
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-  
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        ease: [0.165, 0.84, 0.44, 1],
-      }
-    },
-  };
 
   return (
-    <section id="contact" className="py-20 bg-gray-950">
-      <div ref={containerRef} className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-16"
-        >
-          <h2 className="text-4xl font-bold mb-6">Get In <span className="text-sky-400">Touch</span></h2>
-          <p className="text-gray-300 text-lg">
-            Have a project in mind or want to say hello? Fill out the form below and I&apos;ll get back to you as soon as possible.
-          </p>
-        </motion.div>
+    <section id="contact" className="py-20 bg-gray-950 relative overflow-hidden">
+      {/* Background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+        <div className="absolute -top-[30%] -left-[10%] w-[50%] h-[60%] bg-gradient-radial from-sky-500/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute -bottom-[20%] -right-[10%] w-[40%] h-[50%] bg-gradient-radial from-sky-500/20 to-transparent rounded-full blur-3xl" />
+      </div>
+      
+      <div ref={containerRef} className="container mx-auto px-4 relative z-10">
+        <ScrollTrigger>
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-4xl font-bold mb-6">Get In <span className="text-sky-400">Touch</span></h2>
+            <p className="text-gray-300 text-lg">
+              Have a project in mind or want to say hello? Fill out the form below and I&apos;ll get back to you as soon as possible.
+            </p>
+          </div>
+        </ScrollTrigger>
         
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
-            >
-              <motion.h3 variants={itemVariants} className="text-2xl font-bold mb-6">Contact Information</motion.h3>
+            <ScrollTriggerGroup threshold={0.2} staggerDelay={0.1} className="space-y-6">
+              <h3 className="text-2xl font-bold">Contact Information</h3>
               
-              <motion.div variants={itemVariants} className="space-y-6">
+              <div className="space-y-6">
                 <div className="flex items-start space-x-4">
                   <div className="bg-sky-600/20 p-3 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-sky-400">
@@ -181,149 +208,169 @@ export default function Contact() {
                     <p className="text-gray-400 mt-1">San Francisco, CA</p>
                   </div>
                 </div>
-              </motion.div>
+              </div>
               
-              <motion.div variants={itemVariants} className="mt-12">
+              <div className="mt-12">
                 <h3 className="text-xl font-bold mb-6">Follow Me</h3>
                 <div className="flex space-x-4">
-                  <a href="#" className="bg-gray-800 p-3 rounded-full hover:bg-sky-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                      <rect x="2" y="9" width="4" height="12"></rect>
-                      <circle cx="4" cy="4" r="2"></circle>
-                    </svg>
-                  </a>
-                  <a href="#" className="bg-gray-800 p-3 rounded-full hover:bg-sky-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-                    </svg>
-                  </a>
-                  <a href="#" className="bg-gray-800 p-3 rounded-full hover:bg-sky-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                    </svg>
-                  </a>
-                  <a href="#" className="bg-gray-800 p-3 rounded-full hover:bg-sky-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                    </svg>
-                  </a>
-                </div>
-              </motion.div>
-            </motion.div>
-            
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
-            >
-              <motion.form 
-                variants={itemVariants} 
-                onSubmit={handleSubmit}
-                className="space-y-6"
-              >
-                {submitStatus && (
-                  <div className={`p-4 rounded-lg ${submitStatus.success ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'}`}>
-                    {submitStatus.message}
-                  </div>
-                )}
-                
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-1">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-2 bg-gray-800 border ${
-                      errors.name ? 'border-red-500' : 'border-gray-700'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500`}
-                  />
-                  {errors.name && (
-                    <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-                  )}
-                </div>
-                
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-2 bg-gray-800 border ${
-                      errors.email ? 'border-red-500' : 'border-gray-700'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500`}
-                  />
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-                  )}
-                </div>
-                
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-400 mb-1">
-                    Subject (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-400 mb-1">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={5}
-                    value={formData.message}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-2 bg-gray-800 border ${
-                      errors.message ? 'border-red-500' : 'border-gray-700'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500`}
-                  ></textarea>
-                  {errors.message && (
-                    <p className="mt-1 text-sm text-red-500">{errors.message}</p>
-                  )}
-                </div>
-                
-                <motion.button
-                  type="submit"
-                  disabled={isSubmitting}
-                  whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                  whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                  className={`w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-3 px-4 rounded-lg transition-colors ${
-                    isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
-                  }`}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  {['linkedin', 'twitter', 'github', 'instagram'].map((platform) => (
+                    <motion.a
+                      key={platform}
+                      href="#"
+                      className="bg-gray-800 p-3 rounded-full hover:bg-sky-600 transition-colors"
+                      whileHover={{ y: -5 }}
+                      whileTap={{ y: 0 }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        {platform === 'linkedin' && (
+                          <>
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                            <rect x="2" y="9" width="4" height="12"></rect>
+                            <circle cx="4" cy="4" r="2"></circle>
+                          </>
+                        )}
+                        {platform === 'twitter' && (
+                          <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                        )}
+                        {platform === 'github' && (
+                          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        )}
+                        {platform === 'instagram' && (
+                          <>
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                          </>
+                        )}
                       </svg>
-                      Sending...
-                    </span>
-                  ) : (
-                    'Send Message'
+                    </motion.a>
+                  ))}
+                </div>
+              </div>
+            </ScrollTriggerGroup>
+            
+            <div className="relative">
+              <ScrollTrigger threshold={0.1} delay={0.3}>
+                <form 
+                  ref={formRef}
+                  onSubmit={handleSubmit}
+                  className="space-y-6 relative"
+                >
+                  {/* Animated typing cursor */}
+                  <motion.div
+                    ref={cursorRef}
+                    className="absolute w-4 h-4 bg-sky-400 rounded-full opacity-80 pointer-events-none z-10"
+                    initial={{ x: -100, y: -100, opacity: 0 }}
+                    animate={{ opacity: isInView ? 0.8 : 0 }}
+                  />
+                  
+                  {submitStatus && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`p-4 rounded-lg ${submitStatus.success ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'}`}
+                    >
+                      {submitStatus.message}
+                    </motion.div>
                   )}
-                </motion.button>
-              </motion.form>
-            </motion.div>
+                  
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-1">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-2 bg-gray-800 border ${
+                        errors.name ? 'border-red-500' : activeField === 'name' ? 'border-sky-400' : 'border-gray-700'
+                      } rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors`}
+                    />
+                    {errors.name && (
+                      <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-2 bg-gray-800 border ${
+                        errors.email ? 'border-red-500' : activeField === 'email' ? 'border-sky-400' : 'border-gray-700'
+                      } rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors`}
+                    />
+                    {errors.email && (
+                      <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="subject" className="block text-sm font-medium text-gray-400 mb-1">
+                      Subject (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      id="subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-2 bg-gray-800 border ${
+                        activeField === 'subject' ? 'border-sky-400' : 'border-gray-700'
+                      } rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors`}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-400 mb-1">
+                      Message
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={5}
+                      value={formData.message}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-2 bg-gray-800 border ${
+                        errors.message ? 'border-red-500' : activeField === 'message' ? 'border-sky-400' : 'border-gray-700'
+                      } rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors`}
+                    ></textarea>
+                    {errors.message && (
+                      <p className="mt-1 text-sm text-red-500">{errors.message}</p>
+                    )}
+                  </div>
+                  
+                  <motion.button
+                    type="submit"
+                    disabled={isSubmitting}
+                    whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                    whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                    className={`w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-3 px-4 rounded-lg transition-colors ${
+                      isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending...
+                      </span>
+                    ) : (
+                      'Send Message'
+                    )}
+                  </motion.button>
+                </form>
+              </ScrollTrigger>
+            </div>
           </div>
         </div>
       </div>
