@@ -5,7 +5,7 @@ import { motion, useInView } from 'framer-motion';
 import Canvas from '@/components/three/Canvas';
 import SkillsVisualization from '@/components/three/SkillsVisualization';
 import { ScrollTrigger, ScrollTriggerGroup } from '@/components/ui/ScrollTrigger';
-import { AnimatedText, HighlightWords } from '@/components/ui/TextAnimation';
+import { AnimatedText } from '@/components/ui/TextAnimation';
 import { PrimaryMagneticButton } from '@/components/ui/MagneticButton';
 import { ParallaxSection } from '@/components/ui/ParallaxEffect';
 
@@ -35,7 +35,7 @@ export default function About() {
             animation="fadeUp"
             staggerChildren={0.1}
             className="text-4xl font-bold mb-16 text-center"
-            highlightClassName="text-sky-400"
+            textClassName=""
             highlights={["Me"]}
           />
         </ScrollTrigger>
@@ -47,18 +47,20 @@ export default function About() {
             </ScrollTrigger>
             
             <ScrollTriggerGroup threshold={0.2} staggerDelay={0.1}>
-              <p className="text-gray-300">
-                I&apos;m a <HighlightWords text="creative developer passionate about building immersive digital experiences" highlights={["creative", "immersive"]} highlightClassName="text-sky-400" /> 
+              {/* Fix: Don't use <p> tags for paragraphs with complex components inside */}
+              <div className="text-gray-300">
+                I&apos;m a <span className="text-sky-400">creative developer</span> passionate about building immersive digital experiences 
                 that blend design and technology.
-              </p>
-              <p className="text-gray-300">
+              </div>
+              
+              <div className="text-gray-300">
                 With expertise in modern web technologies like React, Three.js, and interactive animations, 
                 I create websites that stand out from the crowd.
-              </p>
-              <p className="text-gray-300">
-                My approach combines <HighlightWords text="clean code, innovative design, and cutting-edge technologies" highlights={["innovative", "cutting-edge"]} highlightClassName="text-sky-400" />
-                to deliver unique user experiences.
-              </p>
+              </div>
+              
+              <div className="text-gray-300">
+                My approach combines <span className="text-sky-400">clean code, innovative design</span>, and <span className="text-sky-400">cutting-edge technologies</span> to deliver unique user experiences.
+              </div>
               
               <motion.div
                 initial={{ opacity: 0, y: 20 }}

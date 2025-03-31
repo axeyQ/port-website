@@ -3,6 +3,36 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useInView, useAnimation } from 'framer-motion';
 
+// Fixed version of HighlightWords component
+export function HighlightWords({
+  text,
+  highlights = [],
+  highlightClassName = "text-sky-400", // camelCase for prop
+  className = "",
+  ...props
+}) {
+  // Split the text and find words to highlight
+  const parts = text.split(' ');
+  
+  return (
+    <span className={className} {...props}>
+      {parts.map((part, index) => {
+        const isHighlighted = highlights.includes(part);
+        
+        return (
+          <span key={index}>
+            {/* Use className instead of highlightClassName for DOM element */}
+            <span className={isHighlighted ? highlightClassName : ""}>
+              {part}
+            </span>
+            {index !== parts.length - 1 && ' '}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 // Split text into individual characters for animation
 const splitText = (text) => {
   return text.split('').map((char, index) => (
@@ -22,10 +52,10 @@ const splitTextIntoWords = (text) => {
   ));
 };
 
-// Animation for each character or word
+// Animation for each character or word - fixed version
 export function AnimatedText({
   text,
-  type = 'words', // 'words', 'chars', or 'lines'
+  type = 'words',
   duration = 0.05,
   staggerChildren = 0.03,
   delayChildren = 0,
@@ -33,14 +63,15 @@ export function AnimatedText({
   threshold = 0.1,
   className = '',
   textClassName = '',
-  animation = 'fadeUp', // 'fadeUp', 'typewriter', 'wave'
+  // Fix: rename to "highlightClass" for internal use
+  highlightClassName = '', 
+  animation = 'fadeUp',
   ...props
 }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: triggerOnce, amount: threshold });
   const controls = useAnimation();
   
-  // Variants for different animation types
   const variants = {
     fadeUp: {
       hidden: { opacity: 0, y: 20 },
@@ -119,36 +150,7 @@ export function AnimatedText({
   );
 }
 
-// Highlight specific words in a text
-export function HighlightWords({
-  text,
-  highlights = [],
-  highlightClassName = "text-sky-400",
-  className = "",
-  ...props
-}) {
-  // Split the text and find words to highlight
-  const parts = text.split(' ');
-  
-  return (
-    <div className={className}>
-      {parts.map((part, index) => {
-        const isHighlighted = highlights.includes(part);
-        
-        return (
-          <span key={index}>
-            <span className={isHighlighted ? highlightClassName : ""}>
-              {part}
-            </span>
-            {index !== parts.length - 1 && ' '}
-          </span>
-        );
-      })}
-    </div>
-  );
-}
-
-// Typewriter effect
+// Typewriter effect - no changes needed here
 export function Typewriter({
   text,
   speed = 50,
