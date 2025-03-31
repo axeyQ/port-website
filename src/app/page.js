@@ -10,8 +10,6 @@ import Projects from '@/components/sections/Projects';
 import Contact from '@/components/sections/Contact';
 import CustomCursor from '@/components/ui/CustomCursor';
 import PageTransition from '@/components/ui/PageTransition';
-import TailwindTest from '@/components/ui/TailwindTest';
-import TailwindDebug from '@/components/ui/TailwindDebug';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -77,9 +75,7 @@ export default function Home() {
             </main>
             <Footer />
             
-            {/* Tailwind Test Components */}
-            <TailwindTest />
-            <TailwindDebug />
+
           </motion.div>
         )}
       </AnimatePresence>
