@@ -43,7 +43,7 @@ export default function Projects() {
       description: "Responsive company website engineered with React and advanced animations.",
       category: "work",
       tags: ["React.js", "GSAP", "Framer Motion"],
-      imageUrl: "/placeholder.jpg",
+      imageUrl: "/ezpoz.png",
       fullDescription: "Engineered the company landing page utilizing ReactJS, HTML5, and CSS3 with advanced animation libraries including GSAP and Framer Motion. Designed intuitive and visually appealing UI components using Figma, improving user engagement metrics by 40%.",
       achievements: [
         "Increased user engagement by 35% through responsive design and engaging animations",

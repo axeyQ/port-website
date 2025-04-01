@@ -1,8 +1,8 @@
 'use client';
-
 import { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
+// Default export for the main component
 export default function MagneticButton({
   children,
   className = '',
@@ -17,17 +17,30 @@ export default function MagneticButton({
   const buttonRef = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
+  // Check for mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Reset position when not hovered
   useEffect(() => {
     if (!isHovered) {
       setPosition({ x: 0, y: 0 });
     }
   }, [isHovered]);
-  
-  // Magnetic effect on mouse move
+
+  // Magnetic effect on mouse move - only on desktop
   const handleMouseMove = (e) => {
-    if (disabled) return;
+    if (disabled || isMobile) return;
     
     const { clientX, clientY } = e;
     const { left, top, width, height } = buttonRef.current.getBoundingClientRect();
@@ -58,9 +71,22 @@ export default function MagneticButton({
       setPosition({ x: 0, y: 0 });
     }
   };
-  
+
   // Dynamic button component based on the 'as' prop
   const Component = as;
+  
+  // If mobile, render a simpler version without magnetic effects
+  if (isMobile) {
+    return (
+      <Component
+        className={`${className} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+        disabled={disabled}
+        {...props}
+      >
+        {children}
+      </Component>
+    );
+  }
   
   return (
     <motion.div
@@ -92,11 +118,13 @@ export default function MagneticButton({
   );
 }
 
-// Variants for common button styles
+// Named exports for variant components
 export function PrimaryMagneticButton({ children, className = '', ...props }) {
   return (
     <MagneticButton
-      className={`bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-colors ${className}`}
+      className={`bg-sky-600 hover:bg-sky-700 text-white font-semibold
+      py-3 px-6 rounded-lg shadow-lg transition-colors 
+      ${className}`}
       {...props}
     >
       {children}
@@ -107,7 +135,9 @@ export function PrimaryMagneticButton({ children, className = '', ...props }) {
 export function SecondaryMagneticButton({ children, className = '', ...props }) {
   return (
     <MagneticButton
-      className={`bg-transparent hover:bg-white/10 border border-white text-white font-semibold py-3 px-6 rounded-lg transition-colors ${className}`}
+      className={`bg-transparent hover:bg-white/10 border border-white
+      text-white font-semibold py-3 px-6 rounded-lg transition-colors
+      ${className}`}
       {...props}
     >
       {children}
@@ -118,7 +148,9 @@ export function SecondaryMagneticButton({ children, className = '', ...props }) 
 export function IconMagneticButton({ icon, className = '', magneticStrength = 0.3, ...props }) {
   return (
     <MagneticButton
-      className={`bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full transition-colors ${className}`}
+      className={`bg-gray-800 hover:bg-gray-700 text-white p-3
+      rounded-full transition-colors 
+      ${className}`}
       magneticStrength={magneticStrength}
       {...props}
     >

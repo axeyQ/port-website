@@ -7,17 +7,32 @@ export default function CustomCursor() {
   const [cursorVariant, setCursorVariant] = useState('default');
   const { position } = useMousePosition();
   const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
     
-    // Add cursor-none class to body
-    document.body.classList.add('cursor-none');
+    // Check if device is mobile
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Add event listener for screen resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Only add cursor-none class to body on desktop
+    if (!isMobile) {
+      document.body.classList.add('cursor-none');
+    }
     
     return () => {
       document.body.classList.remove('cursor-none');
+      window.removeEventListener('resize', checkMobile);
     };
-  }, []);
+  }, [isMobile]);
 
   if (!isMounted) return null;
 
