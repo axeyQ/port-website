@@ -19,6 +19,7 @@
     "postcss-preset-env": "^10.1.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-three-fiber": "^6.0.13",
     "tailwindcss": "^3.3.3",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.175.0"

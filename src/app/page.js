@@ -6,6 +6,7 @@ import Footer from '@/components/ui/Footer';
 import Hero from '@/components/sections/Hero';
 import About from '@/components/sections/About';
 import Projects from '@/components/sections/Projects';
+import PersonalInfo from '@/components/sections/PersonalInfo'; // Import the integrated component
 import Contact from '@/components/sections/Contact';
 import CustomCursor from '@/components/ui/CustomCursor';
 import PageTransition from '@/components/ui/PageTransition';
@@ -96,6 +97,7 @@ export default function Home() {
               <Hero />
               <About />
               <Projects />
+              <PersonalInfo /> {/* Use the integrated PersonalInfo section */}
               <Contact />
             </main>
             <Footer />
