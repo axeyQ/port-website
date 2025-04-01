@@ -4,37 +4,60 @@ import { useState, useEffect } from 'react';
 import useMousePosition from '@/hooks/useMousePosition';
 
 export default function CustomCursor() {
-  const [cursorVariant, setCursorVariant] = useState('default');
-  const { position } = useMousePosition();
-  const [isMounted, setIsMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-    
-    // Check if device is mobile
-    const checkMobile = () => {
-      setIsMobile(window.matchMedia('(max-width: 768px)').matches);
-    };
-    
-    // Initial check
-    checkMobile();
-    
-    // Add event listener for screen resize
-    window.addEventListener('resize', checkMobile);
-    
-    // Only add cursor-none class to body on desktop
-    if (!isMobile) {
-      document.body.classList.add('cursor-none');
+    const [cursorVariant, setCursorVariant] = useState('default');
+    const { position } = useMousePosition();
+    const [isMounted, setIsMounted] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
+  
+    useEffect(() => {
+      // Check if we're on the client side
+      if (typeof window === 'undefined') return;
+  
+      // Comprehensive mobile detection function
+      const detectMobile = () => {
+        // Method 1: Media query (primary method)
+        const mediaQuery = window.matchMedia('(max-width: 768px), (pointer: coarse)');
+        
+        // Method 2: Check for touch capability
+        const hasTouch = 'ontouchstart' in window || 
+                         navigator.maxTouchPoints > 0 || 
+                         navigator.msMaxTouchPoints > 0;
+        
+        // Method 3: User agent detection (fallback)
+        const userAgent = navigator.userAgent.toLowerCase();
+        const mobileUserAgent = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+        
+        // A device is considered mobile if any of these methods return true
+        const isMobileDevice = mediaQuery.matches || hasTouch || mobileUserAgent;
+        
+        // Set state based on detection
+        setIsDesktop(!isMobileDevice);
+        
+        // Only apply cursor-none class to body on desktop
+        if (!isMobileDevice) {
+          document.body.classList.add('cursor-none');
+        } else {
+          document.body.classList.remove('cursor-none');
+        }
+      };
+  
+      // Run detection
+      detectMobile();
+      setIsMounted(true);
+      
+      // Listen for changes
+      window.addEventListener('resize', detectMobile);
+      return () => {
+        document.body.classList.remove('cursor-none');
+        window.removeEventListener('resize', detectMobile);
+      };
+    }, []);
+  
+    // Critical: Return null early for non-desktop devices
+    if (!isMounted || !isDesktop) {
+      return null;
     }
     
-    return () => {
-      document.body.classList.remove('cursor-none');
-      window.removeEventListener('resize', checkMobile);
-    };
-  }, [isMobile]);
-
-  if (!isMounted) return null;
 
   return (
     <div
