@@ -7,8 +7,9 @@ import UniverseScene from '@/components/three/UniverseScene';
 import useMousePosition from '@/hooks/useMousePosition';
 import useScrollAnimation from '@/hooks/useScrollAnimation';
 import { PrimaryMagneticButton, SecondaryMagneticButton } from '@/components/ui/MagneticButton';
-import { AnimatedText, Typewriter } from '@/components/ui/TextAnimation';
+import { AnimatedText } from '@/components/ui/TextAnimation';
 import { ParallaxSection } from '@/components/ui/ParallaxEffect';
+import TypewriterEffect from '@/components/ui/TypewriterEffect';
 
 export default function Hero() {
   const [mounted, setMounted] = useState(false);
@@ -75,7 +76,7 @@ export default function Hero() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Typewriter
+              <TypewriterEffect
                 text="Hello, I'm a"
                 speed={80}
                 delay={500}
