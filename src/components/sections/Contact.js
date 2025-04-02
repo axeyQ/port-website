@@ -22,7 +22,7 @@ export default function Contact() {
   const [activeField, setActiveField] = useState(null);
 
   // Replace YOUR_FORM_ID with your actual Formspree form ID
-  const FORM_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+  const FORM_ENDPOINT = "https://formspree.io/f/mwplrvre";
 
   // Typing cursor animation
   useEffect(() => {
