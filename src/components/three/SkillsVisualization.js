@@ -1,352 +1,578 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { MathUtils, Vector3, Color } from 'three';
+import * as THREE from 'three';
 import useScrollAnimation from '@/hooks/useScrollAnimation';
 
-// Updated with your actual skills from resume
-const skills = [
-  { name: 'React.js', level: 9.5, color: '#61dafb', radius: 0.65, segments: 16 },
-  { name: 'Next.js', level: 9, color: '#ffffff', radius: 0.6, segments: 16 },
-  { name: 'JavaScript', level: 9.2, color: '#f7df1e', radius: 0.63, segments: 16 },
-  { name: 'TailwindCSS', level: 8.8, color: '#38bdf8', radius: 0.6, segments: 16 },
-  { name: 'GSAP', level: 8.5, color: '#8bc34a', radius: 0.58, segments: 16 },
-  { name: 'Framer Motion', level: 8.2, color: '#ff6b6b', radius: 0.56, segments: 16 },
-  { name: 'MongoDB', level: 7.5, color: '#47A248', radius: 0.52, segments: 16 },
-  { name: 'RESTful APIs', level: 8, color: '#FF9900', radius: 0.55, segments: 16 },
+// Organized skills by category
+const skillCategories = [
+  {
+    name: "Frontend",
+    color: "#38bdf8", // Sky blue
+    skills: [
+      { name: 'React.js', level: 95, color: '#61dafb' },
+      { name: 'Next.js', level: 90, color: '#ffffff' },
+      { name: 'JavaScript', level: 92, color: '#f7df1e' },
+      { name: 'HTML5', level: 95, color: '#e34c26' },
+      { name: 'CSS3', level: 90, color: '#264de4' },
+    ]
+  },
+  {
+    name: "Styling",
+    color: "#8b5cf6", // Purple
+    skills: [
+      { name: 'TailwindCSS', level: 88, color: '#38bdf8' },
+      { name: 'Bootstrap', level: 85, color: '#7952b3' },
+      { name: 'MaterialUI', level: 82, color: '#0081cb' },
+      { name: 'Styled Components', level: 80, color: '#db7093' },
+    ]
+  },
+  {
+    name: "Animation",
+    color: "#10b981", // Green
+    skills: [
+      { name: 'GSAP', level: 85, color: '#8bc34a' },
+      { name: 'Framer Motion', level: 82, color: '#ff6b6b' },
+      { name: 'Three.js', level: 78, color: '#049ef4' },
+    ]
+  },
+  {
+    name: "Backend",
+    color: "#f97316", // Orange
+    skills: [
+      { name: 'NodeJS', level: 75, color: '#3c873a' },
+      { name: 'ExpressJS', level: 78, color: '#000000' },
+      { name: 'MongoDB', level: 75, color: '#47A248' },
+      { name: 'RESTful APIs', level: 80, color: '#FF9900' },
+    ]
+  },
+  {
+    name: "Tools",
+    color: "#ef4444", // Red
+    skills: [
+      { name: 'Git', level: 85, color: '#F05032' },
+      { name: 'Webpack', level: 75, color: '#8DD6F9' },
+      { name: 'Figma', level: 80, color: '#F24E1E' },
+      { name: 'TypeScript', level: 78, color: '#3178C6' },
+    ]
+  }
 ];
 
-// Create a helix-like arrangement for skills
-function arrangeSkillsInHelix(skills, radius, height, turns) {
-  return skills.map((skill, index) => {
-    const angle = (index / skills.length) * Math.PI * 2 * turns;
-    const yPos = (index / skills.length) * height - height / 2;
-    
-    // Calculate skill-specific radius based on skill level
-    const skillRadius = radius * (0.8 + skill.level / 45);
-    
-    return {
-      ...skill,
-      position: [
-        Math.cos(angle) * skillRadius,
-        yPos,
-        Math.sin(angle) * skillRadius
-      ],
-      rotation: [0, -angle, 0],
-      orbitSpeed: 0.05 + (Math.random() * 0.05), // Unique orbit speed
-      pulseSpeed: 0.5 + (Math.random() * 0.5),   // Unique pulse speed
-    };
-  });
-}
-
 export default function SkillsVisualization({ scrollRef, onSkillHover }) {
-  // References and state
+  // References
   const groupRef = useRef(null);
-  const centerSphereRef = useRef(null);
-  const particlesRef = useRef(null);
-  const ringRef = useRef(null);
+  const centerRef = useRef(null);
   
+  // State
   const [highlightedSkill, setHighlightedSkill] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const [scale, setScale] = useState(0);
+  const [highlightedCategory, setHighlightedCategory] = useState(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const [scale, setScale] = useState(1);
   const [mousePosition, setMousePosition] = useState([0, 0, 0]);
+  const [autoRotate, setAutoRotate] = useState(true);
+  
+  // Get Three.js context
+  const { camera } = useThree();
+  
+  // Get scroll animation utilities
   const { getSectionVisibility } = useScrollAnimation();
   
-  // Arrange skills in a helix formation
-  const arrangedSkills = arrangeSkillsInHelix(skills, 3, 5, 1.2);
-
-  // Notify parent component when highlighted skill changes
+  // Position camera to see all skills
+  useEffect(() => {
+    if (camera) {
+      camera.position.z = 10;
+      camera.lookAt(0, 0, 0);
+      camera.updateProjectionMatrix();
+    }
+  }, [camera]);
+  
+  // Notify parent when highlighted skill changes
   useEffect(() => {
     if (onSkillHover) {
-      onSkillHover(highlightedSkill);
+      // Extract just the skill name without category prefix
+      const skillName = highlightedSkill ? highlightedSkill.split('-')[1] : null;
+      
+      // Find the skill object to pass level information
+      let skillInfo = null;
+      if (skillName) {
+        // Search through all categories to find matching skill
+        for (const category of skillCategories) {
+          const found = category.skills.find(s => s.name === skillName);
+          if (found) {
+            skillInfo = {
+              name: found.name,
+              level: found.level,
+              category: category.name
+            };
+            break;
+          }
+        }
+      }
+      
+      onSkillHover(skillInfo);
     }
   }, [highlightedSkill, onSkillHover]);
 
   // Handle section visibility
   useEffect(() => {
-    if (scrollRef?.current) {
-      const checkVisibility = () => {
+    if (!scrollRef?.current) return;
+    
+    const checkVisibility = () => {
+      try {
         const visibility = getSectionVisibility(scrollRef);
         setIsVisible(visibility > 0.1);
-        setScale(visibility * 2.2); // Slightly larger scaling for more impact
-      };
-      
-      checkVisibility();
-      window.addEventListener('scroll', checkVisibility);
-      return () => {
-        window.removeEventListener('scroll', checkVisibility);
-      };
-    }
+        setScale(Math.max(0.8, visibility * 1.5));
+      } catch (error) {
+        console.error("SkillsVisualization visibility error:", error);
+        setIsVisible(true);
+        setScale(1);
+      }
+    };
+    
+    checkVisibility();
+    window.addEventListener('scroll', checkVisibility, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', checkVisibility);
+    };
   }, [scrollRef, getSectionVisibility]);
 
-  // Generate particles for the background effect
-  const particles = useRef(Array.from({ length: 150 }, () => ({
-    position: [
-      (Math.random() - 0.5) * 15,
-      (Math.random() - 0.5) * 15,
-      (Math.random() - 0.5) * 15
-    ],
-    size: Math.random() * 0.1 + 0.05,
-    color: new Color().setHSL(Math.random(), 0.6, 0.7).getHex(),
-    speed: Math.random() * 0.01
-  })));
-
-  // Main animation loop
-  useFrame((state, delta) => {
+  // Animation loop
+  useFrame((state) => {
     const time = state.clock.getElapsedTime();
     
-    // Group rotation follows mouse slightly
+    // Group animations
     if (groupRef.current) {
-      groupRef.current.rotation.y = MathUtils.lerp(
-        groupRef.current.rotation.y,
-        mousePosition[0] * 0.2,
-        0.02
-      );
+      // Auto-rotate unless disabled
+      if (autoRotate) {
+        groupRef.current.rotation.y += 0.001; // Very slow rotation
+      }
+      
+      // Mouse influence on tilt
       groupRef.current.rotation.x = MathUtils.lerp(
         groupRef.current.rotation.x,
         mousePosition[1] * 0.1,
         0.02
       );
       
-      // Scale based on visibility
-      groupRef.current.scale.set(scale, scale, scale);
+      // Apply scale
+      const targetScale = isVisible ? scale : 0.8;
+      groupRef.current.scale.set(targetScale, targetScale, targetScale);
     }
     
-    // Animate center sphere
-    if (centerSphereRef.current) {
-      centerSphereRef.current.rotation.y = time * 0.2;
-      centerSphereRef.current.rotation.z = time * 0.1;
-      
-      // Pulse effect
+    // Center sphere animation
+    if (centerRef.current) {
+      centerRef.current.rotation.y = time * 0.2;
       const pulse = Math.sin(time * 0.6) * 0.05 + 1;
-      centerSphereRef.current.scale.set(pulse, pulse, pulse);
-    }
-    
-    // Rotate the ring
-    if (ringRef.current) {
-      ringRef.current.rotation.z = time * 0.1;
-      ringRef.current.rotation.x = Math.sin(time * 0.2) * 0.2;
-    }
-    
-    // Animate background particles
-    if (particlesRef.current) {
-      particlesRef.current.rotation.y = time * 0.03;
-      particlesRef.current.rotation.x = Math.sin(time * 0.04) * 0.2;
+      centerRef.current.scale.set(pulse, pulse, pulse);
     }
   });
 
-  // Handler for mouse movement to affect the scene
+  // Handle mouse movement
   const handlePointerMove = (e) => {
-    const x = (e.point.x / 10);
-    const y = (e.point.y / 10);
+    if (!e.point) return;
+    
+    const x = (e.point.x / 8);
+    const y = (e.point.y / 8);
     setMousePosition([x, y, 0]);
   };
 
   return (
-    <group 
-      ref={groupRef} 
-      position={[0, 0, 0]} 
-      scale={[0, 0, 0]}
+    <group
+      ref={groupRef}
+      position={[0, 0, 0]}
+      scale={[1, 1, 1]}
       onPointerMove={handlePointerMove}
     >
-      {/* Background particle system */}
-      <group ref={particlesRef}>
-        {particles.current.map((particle, i) => (
-          <mesh key={i} position={particle.position}>
-            <sphereGeometry args={[particle.size, 8, 8]} />
-            <meshBasicMaterial 
-              color={particle.color} 
-              transparent 
-              opacity={0.6} 
-            />
-          </mesh>
-        ))}
-      </group>
+      {/* Center sphere */}
+      <mesh ref={centerRef} position={[0, 0, 0]}>
+        <sphereGeometry args={[0.6, 32, 32]} />
+        <meshStandardMaterial
+          color="#0ea5e9"
+          emissive="#0ea5e9"
+          emissiveIntensity={0.3}
+          metalness={0.9}
+          roughness={0.2}
+        />
+      </mesh>
       
-      {/* Center sphere with animated rings */}
-      <group>
-        {/* Main sphere */}
-        <mesh ref={centerSphereRef} position={[0, 0, 0]}>
-          <sphereGeometry args={[1.2, 32, 32]} />
-          <meshPhysicalMaterial
-            color="#0ea5e9"
-            emissive="#0ea5e9"
-            emissiveIntensity={0.3}
-            metalness={0.9}
-            roughness={0.2}
-            clearcoat={0.5}
-            clearcoatRoughness={0.2}
-          />
-        </mesh>
-        
-        {/* Outer ring */}
-        <group ref={ringRef}>
-          <mesh position={[0, 0, 0]} rotation={[Math.PI/2, 0, 0]}>
-            <torusGeometry args={[2.2, 0.08, 16, 60]} />
-            <meshPhysicalMaterial
-              color="#38bdf8"
-              emissive="#38bdf8"
-              emissiveIntensity={0.3}
-              metalness={0.9}
-              roughness={0.3}
-              transparent
-              opacity={0.7}
-            />
-          </mesh>
-          
-          {/* Inner ring */}
-          <mesh position={[0, 0, 0]} rotation={[Math.PI/3, Math.PI/4, 0]}>
-            <torusGeometry args={[1.8, 0.05, 16, 50]} />
-            <meshPhysicalMaterial
-              color="#0ea5e9"
-              emissive="#0ea5e9"
-              emissiveIntensity={0.2}
-              metalness={0.9}
-              roughness={0.3}
-              transparent
-              opacity={0.8}
-            />
-          </mesh>
-        </group>
-      </group>
-      
-      {/* Skills spheres */}
-      {arrangedSkills.map((skill, index) => (
-        <SkillNode
-          key={skill.name}
-          skill={skill}
-          index={index}
-          isVisible={isVisible}
-          highlightedIndex={highlightedSkill}
-          setHighlightedIndex={setHighlightedSkill}
+      {/* Orbital system - each category is a ring */}
+      {skillCategories.map((category, categoryIndex) => (
+        <OrbitalRing
+          key={category.name}
+          category={category}
+          index={categoryIndex}
+          totalCategories={skillCategories.length}
+          isHighlighted={category.name === highlightedCategory}
+          setHighlightedCategory={setHighlightedCategory}
+          setHighlightedSkill={setHighlightedSkill}
+          setAutoRotate={setAutoRotate}
+          highlightedSkill={highlightedSkill}
         />
       ))}
-      
-      {/* Enhanced lighting */}
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[5, 5, 5]} intensity={0.6} color="#ffffff" />
-      <pointLight position={[-3, 2, -3]} intensity={0.5} color="#38bdf8" />
-      <pointLight position={[3, -2, 3]} intensity={0.5} color="#0ea5e9" />
+
+      {/* Lighting */}
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 5, 5]} intensity={0.7} color="#ffffff" />
+      <pointLight position={[-3, 2, -3]} intensity={0.6} color="#38bdf8" />
+      <pointLight position={[3, -2, 3]} intensity={0.6} color="#0ea5e9" />
     </group>
   );
 }
 
-// Enhanced skill node component
-function SkillNode({ skill, index, isVisible, highlightedIndex, setHighlightedIndex }) {
-  const nodeRef = useRef(null);
+// Orbital ring component for a category
+function OrbitalRing({ category, index, totalCategories, isHighlighted, setHighlightedCategory, setHighlightedSkill, setAutoRotate, highlightedSkill }) {
+  const ringRef = useRef(null);
   const orbitRef = useRef(null);
-  const lineRef = useRef(null);
-  const glowRef = useRef(null);
-  const isHighlighted = highlightedIndex === index;
-  const [hovered, setHovered] = useState(false);
+  const labelRef = useRef(null);
   
-  // Animation for each skill node
+  // Calculate orbit radius based on category index
+  const baseRadius = 2.5;
+  const orbitRadius = baseRadius + index * 1.2;
+  
+  // Calculate orbit tilt angle (alternating)
+  const tiltAngle = (index % 2 === 0 ? 0.1 : -0.1) * Math.PI;
+
+  // Create category label
+  useEffect(() => {
+    if (labelRef.current) {
+      // Create canvas for category label
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      const fontSize = 36;
+      
+      canvas.width = 200;
+      canvas.height = 80;
+      
+      // Clear canvas
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw category name
+      context.font = `bold ${fontSize}px Arial, sans-serif`;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillStyle = category.color;
+      context.fillText(category.name, canvas.width / 2, canvas.height / 2);
+      
+      // Create texture
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      
+      // Apply texture
+      if (labelRef.current.material) {
+        labelRef.current.material.map = texture;
+        labelRef.current.material.needsUpdate = true;
+      }
+    }
+  }, [category]);
+  
+  // Animation loop
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    
+    // Rotate orbit
+    if (orbitRef.current) {
+      // Rotate slower when highlighted, faster when not
+      const rotationSpeed = isHighlighted ? 0.05 : 0.1;
+      orbitRef.current.rotation.y += rotationSpeed * 0.01;
+    }
+    
+    // Animate ring
+    if (ringRef.current) {
+      // Pulse effect when category is highlighted
+      if (isHighlighted) {
+        const pulse = Math.sin(time * 2) * 0.05 + 1;
+        ringRef.current.scale.set(pulse, pulse, pulse);
+      } else {
+        ringRef.current.scale.set(1, 1, 1);
+      }
+    }
+    
+    // Animate label
+    if (labelRef.current) {
+      // Always face camera
+      labelRef.current.lookAt(state.camera.position);
+      
+      // Pulse and show/hide based on highlight state
+      const labelOpacity = isHighlighted ? 0.9 : 0.4;
+      labelRef.current.material.opacity = MathUtils.lerp(
+        labelRef.current.material.opacity || labelOpacity,
+        labelOpacity,
+        0.1
+      );
+      
+      if (isHighlighted) {
+        const pulse = Math.sin(time * 1.5) * 0.1 + 1.1;
+        labelRef.current.scale.set(pulse, pulse, pulse);
+      }
+    }
+  });
+  
+  // Handle mouse interactions
+  const handleRingHover = () => {
+    setHighlightedCategory(category.name);
+    setAutoRotate(false);
+  };
+  
+  const handleRingLeave = () => {
+    setHighlightedCategory(null);
+    setAutoRotate(true);
+  };
+
+  return (
+    <group
+      rotation={[tiltAngle, 0, 0]} 
+      onPointerOver={handleRingHover}
+      onPointerOut={handleRingLeave}
+    >
+      {/* Orbital path (ring) */}
+      <mesh ref={ringRef}>
+        <torusGeometry args={[orbitRadius, 0.02, 16, 100]} />
+        <meshStandardMaterial
+          color={category.color}
+          emissive={category.color}
+          emissiveIntensity={isHighlighted ? 0.5 : 0.2}
+          transparent
+          opacity={isHighlighted ? 0.8 : 0.3}
+        />
+      </mesh>
+      
+      {/* Category label */}
+      <sprite
+        ref={labelRef}
+        position={[0, 0, orbitRadius]}
+        scale={[1, 0.5, 1]}
+      >
+        <spriteMaterial 
+          transparent={true} 
+          opacity={0.8}
+          depthTest={false}
+        />
+      </sprite>
+      
+      {/* Rotating group for skills */}
+      <group ref={orbitRef}>
+        {/* Category marker */}
+        <mesh
+          position={[0, 0, orbitRadius]}
+          scale={isHighlighted ? 1.2 : 1}
+        >
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshStandardMaterial
+            color={category.color}
+            emissive={category.color}
+            emissiveIntensity={0.5}
+          />
+        </mesh>
+        
+        {/* Skills distributed around the orbit */}
+        {category.skills.map((skill, skillIndex) => {
+          // Calculate position on the orbital ring
+          const angle = (skillIndex / category.skills.length) * Math.PI * 2;
+          const x = Math.cos(angle) * orbitRadius;
+          const z = Math.sin(angle) * orbitRadius;
+          
+          // Check if this skill is the highlighted one
+          const isSkillHighlighted = highlightedSkill === `${category.name}-${skill.name}`;
+          
+          return (
+            <SkillNode
+              key={skill.name}
+              skill={skill}
+              position={[x, 0, z]}
+              categoryName={category.name}
+              categoryColor={category.color}
+              isHighlighted={isSkillHighlighted}
+              isInHighlightedCategory={isHighlighted}
+              setHighlightedSkill={setHighlightedSkill}
+            />
+          );
+        })}
+      </group>
+    </group>
+  );
+}
+
+// Improved skill node component with better text display
+function SkillNode({ skill, position, categoryName, categoryColor, isHighlighted, isInHighlightedCategory, setHighlightedSkill }) {
+  const nodeRef = useRef(null);
+  const glowRef = useRef(null);
+  const textRef = useRef(null);
+  
+  const [hovered, setHovered] = useState(false);
+  const fullSkillId = `${categoryName}-${skill.name}`;
+
+  // Calculate skill size based on level
+  const baseSize = 0.12;
+  const sizeBoost = skill.level / 500; // Subtle size difference based on level
+  const radius = baseSize + sizeBoost;
+  
+  // Create a texture with skill name
+  useEffect(() => {
+    if (textRef.current) {
+      // Create canvas for text
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      const fontSize = 40;
+      
+      // Set canvas size to fit text
+      canvas.width = 256;
+      canvas.height = 128;
+      
+      // Clear canvas
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Prepare background with rounded corners
+      context.fillStyle = 'rgba(0, 0, 0, 0.85)'; // Darker background for better contrast
+      roundRect(context, 0, 0, canvas.width, canvas.height, 16, true, false);
+      
+      // Add a subtle border in the category color
+      context.strokeStyle = categoryColor;
+      context.lineWidth = 3;
+      roundRect(context, 2, 2, canvas.width - 4, canvas.height - 4, 14, false, true);
+      
+      // Draw skill name
+      context.font = `bold ${fontSize}px Arial, sans-serif`;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillStyle = categoryColor;
+      context.fillText(skill.name, canvas.width / 2, canvas.height / 3);
+      
+      // Draw skill level
+      context.font = `${fontSize * 0.9}px Arial, sans-serif`;
+      context.fillStyle = '#ffffff';
+      context.fillText(`${skill.level}%`, canvas.width / 2, canvas.height * 2/3);
+      
+      // Create texture from canvas
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      
+      // Apply texture to sprite
+      if (textRef.current.material) {
+        textRef.current.material.map = texture;
+        textRef.current.material.needsUpdate = true;
+      }
+    }
+  }, [skill, categoryColor]);
+  
+  // Helper function for rounded rectangle
+  function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    if (fill) {
+      ctx.fill();
+    }
+    if (stroke) {
+      ctx.stroke();
+    }
+  }
+  
+  // Animation loop
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     
     if (nodeRef.current) {
-      // Calculate orbit position
-      const orbitAngle = time * skill.orbitSpeed + (index * Math.PI / 4);
-      const orbitRadius = 0.1;
+      // Floating animation
+      nodeRef.current.position.y = Math.sin(time * 0.5 + position[0]) * 0.1;
       
-      // Base position plus small orbital movement
-      nodeRef.current.position.x = skill.position[0] + Math.cos(orbitAngle) * orbitRadius;
-      nodeRef.current.position.y = skill.position[1] + Math.sin(time * skill.pulseSpeed) * 0.15;
-      nodeRef.current.position.z = skill.position[2] + Math.sin(orbitAngle) * orbitRadius;
+      // Rotate the skill node to face camera
+      nodeRef.current.rotation.y = time * 0.2;
       
-      // Rotate the skill node
-      nodeRef.current.rotation.y = time * 0.5;
+      // Scale when highlighted or hovered
+      const targetScale = (isHighlighted || hovered) ? 1.5 : 
+                          isInHighlightedCategory ? 1.2 : 1;
       
-      // Scale animation based on hover/highlight and visibility
-      const targetScale = isVisible 
-        ? (isHighlighted || hovered ? 1.2 : 0.7) 
-        : 0;
-        
-      nodeRef.current.scale.x = MathUtils.lerp(nodeRef.current.scale.x, targetScale, 0.1);
-      nodeRef.current.scale.y = MathUtils.lerp(nodeRef.current.scale.y, targetScale, 0.1);
-      nodeRef.current.scale.z = MathUtils.lerp(nodeRef.current.scale.z, targetScale, 0.1);
+      nodeRef.current.scale.x = MathUtils.lerp(nodeRef.current.scale.x || 1, targetScale, 0.1);
+      nodeRef.current.scale.y = MathUtils.lerp(nodeRef.current.scale.y || 1, targetScale, 0.1);
+      nodeRef.current.scale.z = MathUtils.lerp(nodeRef.current.scale.z || 1, targetScale, 0.1);
     }
     
-    // Update the connecting line
-    if (lineRef.current) {
-      const lineOpacity = isHighlighted || hovered ? 0.8 : 0.4;
-      lineRef.current.material.opacity = MathUtils.lerp(
-        lineRef.current.material.opacity,
-        lineOpacity,
-        0.1
-      );
-    }
-    
-    // Animate glow for highlighted skill
-    if (glowRef.current) {
-      const glowIntensity = isHighlighted || hovered ? 0.8 : 0;
+    // Animate glow
+    if (glowRef.current && glowRef.current.material) {
+      const glowIntensity = isHighlighted || hovered ? 0.8 : 
+                           isInHighlightedCategory ? 0.4 : 0;
+      
       glowRef.current.material.opacity = MathUtils.lerp(
-        glowRef.current.material.opacity,
+        glowRef.current.material.opacity || 0,
         glowIntensity,
         0.1
       );
       
-      // Pulse the glow
       if (isHighlighted || hovered) {
-        const pulseFactor = Math.sin(time * 2) * 0.1 + 1.1;
+        const pulseFactor = Math.sin(time * 2) * 0.1 + 1.3;
         glowRef.current.scale.set(pulseFactor, pulseFactor, pulseFactor);
+      }
+    }
+    
+    // Show/hide and position text sprite
+    if (textRef.current) {
+      // Text visibility
+      textRef.current.visible = isHighlighted || hovered;
+      
+      // Text always faces camera
+      textRef.current.lookAt(state.camera.position);
+      
+      // Position above skill node - increased height to avoid orbit intersection
+      textRef.current.position.y = radius * 4; // Increased from 3 to 4
+      
+      // Scale animation for text
+      const textScale = 0.6; // Smaller text scale
+      if (isHighlighted || hovered) {
+        const pulseFactor = Math.sin(time * 1.5) * 0.05 + 1;
+        textRef.current.scale.set(
+          textScale * pulseFactor, 
+          textScale * 0.5 * pulseFactor, // Make height proportionally smaller
+          textScale * pulseFactor
+        );
       }
     }
   });
 
   // Choose geometry based on skill level
   const getGeometry = (skill) => {
-    // Higher level = more complex geometry
-    if (skill.level >= 9) {
-      return <dodecahedronGeometry args={[skill.radius, 0]} />;
-    } else if (skill.level >= 8) {
-      return <icosahedronGeometry args={[skill.radius, 0]} />;
-    } else if (skill.level >= 7) {
-      return <octahedronGeometry args={[skill.radius, 0]} />;
+    if (skill.level >= 90) {
+      return <dodecahedronGeometry args={[radius, 0]} />;
+    } else if (skill.level >= 80) {
+      return <icosahedronGeometry args={[radius, 0]} />;
+    } else if (skill.level >= 70) {
+      return <octahedronGeometry args={[radius, 0]} />;
     } else {
-      return <sphereGeometry args={[skill.radius, skill.segments, skill.segments]} />;
+      return <sphereGeometry args={[radius, 16, 16]} />;
     }
   };
 
+  // Handle pointer events
+  const handlePointerOver = () => {
+    setHovered(true);
+    setHighlightedSkill(fullSkillId);
+  };
+  
+  const handlePointerOut = () => {
+    setHovered(false);
+    setHighlightedSkill(null);
+  };
+
   return (
-    <group position={skill.position}>
-      {/* Connecting line */}
-      <line ref={lineRef}>
-        <bufferGeometry
-          attach="geometry"
-          onUpdate={(self) => {
-            const points = [];
-            points.push(new Vector3(0, 0, 0));
-            points.push(new Vector3(0, 0, 0).sub(new Vector3(...skill.position)).multiplyScalar(0.9));
-            self.setFromPoints(points);
-          }}
-        />
-        <lineBasicMaterial
-          attach="material"
-          color={skill.color}
-          opacity={0.5}
-          transparent
-          linewidth={1}
-        />
-      </line>
-      
-      {/* Skill node container */}
-      <group 
+    <group position={position}>
+      {/* Skill node */}
+      <group
         ref={nodeRef}
-        position={[0, 0, 0]}
-        scale={[0, 0, 0]}
-        onPointerOver={() => {
-          setHovered(true);
-          setHighlightedIndex(index);
-        }}
-        onPointerOut={() => {
-          setHovered(false);
-          setHighlightedIndex(null);
-        }}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
       >
-        {/* Glow effect for highlighted skill */}
+        {/* Glow effect */}
         <mesh ref={glowRef} scale={[1.3, 1.3, 1.3]}>
-          <sphereGeometry args={[skill.radius, 16, 16]} />
+          <sphereGeometry args={[radius, 16, 16]} />
           <meshBasicMaterial
             color={skill.color}
             transparent
@@ -355,37 +581,41 @@ function SkillNode({ skill, index, isVisible, highlightedIndex, setHighlightedIn
           />
         </mesh>
         
-        {/* Skill geometry with material */}
+        {/* Skill geometry */}
         <mesh>
           {getGeometry(skill)}
-          <meshPhysicalMaterial
+          <meshStandardMaterial
             color={skill.color}
             emissive={skill.color}
-            emissiveIntensity={isHighlighted || hovered ? 0.5 : 0.2}
+            emissiveIntensity={isHighlighted || hovered ? 0.7 : 0.3}
             metalness={0.8}
             roughness={0.2}
-            clearcoat={0.4}
-            clearcoatRoughness={0.2}
             wireframe={isHighlighted || hovered}
           />
         </mesh>
         
-        {/* Small orbit indicator */}
-        <mesh ref={orbitRef} position={[skill.radius * 1.3, 0, 0]}>
-          <sphereGeometry args={[0.1, 8, 8]} />
-          <meshBasicMaterial color={skill.color} transparent opacity={0.8} />
-        </mesh>
+        {/* Skill level indicator (only visible when highlighted) */}
+        {(isHighlighted || hovered) && (
+          <mesh position={[0, radius * 2, 0]}>
+            <boxGeometry args={[skill.level / 80, 0.03, 0.03]} />
+            <meshStandardMaterial color={skill.color} />
+          </mesh>
+        )}
+        
+        {/* Text label that appears on hover - improved positioning */}
+        <sprite
+          ref={textRef}
+          visible={false}
+          position={[0, radius * 4, 0]} // Higher position to avoid orbits
+          scale={[1.8, 0.9, 1]}
+        >
+          <spriteMaterial 
+            transparent={true}
+            opacity={0.9}
+            depthTest={false} // Make sure text renders on top
+          />
+        </sprite>
       </group>
-      
-      {/* Skill level indicator - more prominent now */}
-      <mesh 
-        position={[0, -1.2, 0]} 
-        rotation={[0, 0, 0]}
-        visible={isHighlighted || hovered}
-      >
-        <boxGeometry args={[skill.level / 4, 0.15, 0.15]} />
-        <meshPhongMaterial color={skill.color} />
-      </mesh>
     </group>
   );
 }

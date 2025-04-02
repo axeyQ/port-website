@@ -18,16 +18,14 @@ export default function MagneticButton({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  
+
   // Check for mobile device
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.matchMedia('(max-width: 768px)').matches);
     };
-    
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -41,7 +39,6 @@ export default function MagneticButton({
   // Magnetic effect on mouse move - only on desktop
   const handleMouseMove = (e) => {
     if (disabled || isMobile) return;
-    
     const { clientX, clientY } = e;
     const { left, top, width, height } = buttonRef.current.getBoundingClientRect();
     
@@ -55,7 +52,7 @@ export default function MagneticButton({
     
     // Calculate distance from mouse to center
     const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2);
-    
+
     // Only apply magnetic effect if mouse is within radius
     if (distance < radius) {
       // Calculate magnetic pull (stronger when closer)
@@ -74,7 +71,7 @@ export default function MagneticButton({
 
   // Dynamic button component based on the 'as' prop
   const Component = as;
-  
+
   // If mobile, render a simpler version without magnetic effects
   if (isMobile) {
     return (
@@ -87,7 +84,7 @@ export default function MagneticButton({
       </Component>
     );
   }
-  
+
   return (
     <motion.div
       ref={buttonRef}
@@ -118,13 +115,11 @@ export default function MagneticButton({
   );
 }
 
-// Named exports for variant components
+// Primary button variant with corrected styling
 export function PrimaryMagneticButton({ children, className = '', ...props }) {
   return (
     <MagneticButton
-      className={`bg-sky-600 hover:bg-sky-700 text-white font-semibold
-      py-3 px-6 rounded-lg shadow-lg transition-colors 
-      ${className}`}
+      className={`inline-flex items-center justify-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-colors ${className}`}
       {...props}
     >
       {children}
@@ -132,12 +127,11 @@ export function PrimaryMagneticButton({ children, className = '', ...props }) {
   );
 }
 
+// Secondary button variant with corrected styling
 export function SecondaryMagneticButton({ children, className = '', ...props }) {
   return (
     <MagneticButton
-      className={`bg-transparent hover:bg-white/10 border border-white
-      text-white font-semibold py-3 px-6 rounded-lg transition-colors
-      ${className}`}
+      className={`inline-flex items-center justify-center bg-transparent hover:bg-white/10 border border-white text-white font-semibold py-3 px-6 rounded-lg transition-colors ${className}`}
       {...props}
     >
       {children}
@@ -145,12 +139,11 @@ export function SecondaryMagneticButton({ children, className = '', ...props }) 
   );
 }
 
+// Icon button variant
 export function IconMagneticButton({ icon, className = '', magneticStrength = 0.3, ...props }) {
   return (
     <MagneticButton
-      className={`bg-gray-800 hover:bg-gray-700 text-white p-3
-      rounded-full transition-colors 
-      ${className}`}
+      className={`inline-flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full transition-colors ${className}`}
       magneticStrength={magneticStrength}
       {...props}
     >

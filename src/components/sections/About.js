@@ -175,7 +175,7 @@ export default function About() {
                 enableOrbit={true}
                 enableZoom={false}
                 enablePan={false}
-                className="rounded-xl"
+                className="rounded-xl z-10"
               >
                 <SkillsVisualization 
                   scrollRef={skillsRef} 

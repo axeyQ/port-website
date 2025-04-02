@@ -1,6 +1,6 @@
 // src/app/layout.js - No 'use client' directive for metadata exports
 import './globals.css';
-
+import { Analytics } from "@vercel/analytics/react"
 export const metadata = {
   title: 'axeyQ | Creative Developer Portfolio',
   description: 'Interactive portfolio website of Rakshit Singh Thakur, a frontend engineer specializing in React.js, Next.js, and modern web technologies.',

@@ -55,3 +55,75 @@ body.cursor-none * {
     @apply w-full;
   }
 }
+/* Custom scrollbar styles - add to globals.css */
+
+/* For Webkit browsers (Chrome, Safari, Edge, Opera) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #1f2937; /* dark gray track */
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #0ea5e9; /* sky-500 thumb */
+  background-image: linear-gradient(to bottom, #0ea5e9, #0284c7); /* sky-500 to sky-600 gradient */
+  border-radius: 8px;
+  border: 2px solid #1f2937; /* thin border matching track color */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #38bdf8; /* sky-400 on hover - lighter */
+  background-image: linear-gradient(to bottom, #38bdf8, #0ea5e9); /* sky-400 to sky-500 gradient */
+}
+
+::-webkit-scrollbar-corner {
+  background-color: #1f2937;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #0ea5e9 #1f2937; /* thumb and track colors */
+}
+
+/* For dark themed modals and specific containers */
+.dark-scrollbar::-webkit-scrollbar-track {
+  background-color: #111827; /* darker track for modal content */
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  border: 2px solid #111827;
+}
+
+/* For code blocks and pre elements */
+pre::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+pre::-webkit-scrollbar-track {
+  background-color: #1e293b; /* slate-800 */
+}
+
+pre::-webkit-scrollbar-thumb {
+  background-color: #0ea5e9;
+  border: 1px solid #1e293b;
+}
+
+/* For modal scrollable content */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background-color: rgba(15, 23, 42, 0.3); /* semi-transparent dark */
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background-color: rgba(14, 165, 233, 0.7); /* semi-transparent sky blue */
+  border: none;
+}

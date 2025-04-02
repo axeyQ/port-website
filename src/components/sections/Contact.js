@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { ScrollTrigger, ScrollTriggerGroup } from '@/components/ui/ScrollTrigger';
 import { gsap } from 'gsap';
+import Honeypot from '@/components/ui/Honeypot'; // Import the Honeypot component
 
 export default function Contact() {
   const containerRef = useRef(null);
@@ -19,7 +20,10 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [activeField, setActiveField] = useState(null);
-  
+
+  // Replace YOUR_FORM_ID with your actual Formspree form ID
+  const FORM_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+
   // Typing cursor animation
   useEffect(() => {
     if (formRef.current && cursorRef.current && isInView) {
@@ -64,7 +68,7 @@ export default function Contact() {
       }, "+=0.5");
     }
   }, [isInView]);
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -80,9 +84,10 @@ export default function Contact() {
       }));
     }
   };
-  
+
   const validateForm = () => {
     const newErrors = {};
+    
     if (!formData.name.trim()) {
       newErrors.name = "Name is required";
     }
@@ -102,18 +107,54 @@ export default function Contact() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     
     setIsSubmitting(true);
     
-    // Simulate API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Check for possible bot by examining if honeypot field exists in DOM and is filled
+      const honeypotField = document.querySelector('input[name="website"]');
+      if (honeypotField && honeypotField.value) {
+        // Simulate success but don't actually send (it's a bot)
+        console.log("Honeypot triggered - bot detected");
+        setSubmitStatus({
+          success: true,
+          message: "Your message has been sent successfully! I'll get back to you soon."
+        });
+        
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+        
+        setTimeout(() => {
+          setSubmitStatus(null);
+        }, 5000);
+        
+        return; // Exit without sending
+      }
       
-      // Success simulation
+      // Send data to Formspree
+      const response = await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit the form');
+      }
+      
+      // Success response
       setSubmitStatus({
         success: true,
         message: "Your message has been sent successfully! I'll get back to you soon."
@@ -132,6 +173,7 @@ export default function Contact() {
         setSubmitStatus(null);
       }, 5000);
     } catch (error) {
+      console.error('Contact form error:', error);
       setSubmitStatus({
         success: false,
         message: "Oops! Something went wrong. Please try again later."
@@ -160,13 +202,11 @@ export default function Contact() {
           >
             GET IN TOUCH
           </motion.div>
-          
           <h2 className="text-4xl font-bold mb-6">
             Let&apos;s Talk <span className="text-sky-400">Together</span>
           </h2>
-          
           <p className="text-gray-300 text-lg">
-            Have a project in mind or want to discuss potential opportunities? 
+            Have a project in mind or want to discuss potential opportunities?
             I&apos;d love to hear from you.
           </p>
         </div>
@@ -176,7 +216,6 @@ export default function Contact() {
             <ScrollTriggerGroup threshold={0.2} staggerDelay={0.1} className="space-y-8">
               <div className="p-6 rounded-2xl bg-gray-800/30 backdrop-blur-sm border border-gray-700/50">
                 <h3 className="text-2xl font-bold mb-6 text-white">Contact Information</h3>
-                
                 <div className="space-y-6">
                   <div className="flex items-start space-x-4">
                     <div className="bg-sky-600/20 p-3 rounded-lg">
@@ -189,7 +228,6 @@ export default function Contact() {
                       <p className="text-gray-400 mt-1">+91 6261302374</p>
                     </div>
                   </div>
-                  
                   <div className="flex items-start space-x-4">
                     <div className="bg-sky-600/20 p-3 rounded-lg">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-sky-400">
@@ -202,7 +240,6 @@ export default function Contact() {
                       <a href="mailto:thakur.raxit@gmail.com" className="text-gray-400 mt-1 hover:text-sky-400 transition-colors">thakur.raxit@gmail.com</a>
                     </div>
                   </div>
-                  
                   <div className="flex items-start space-x-4">
                     <div className="bg-sky-600/20 p-3 rounded-lg">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-sky-400">
@@ -217,12 +254,11 @@ export default function Contact() {
                   </div>
                 </div>
               </div>
-              
               <div className="p-6 rounded-2xl bg-gray-800/30 backdrop-blur-sm border border-gray-700/50">
                 <h3 className="text-xl font-bold mb-6">Connect With Me</h3>
                 <div className="flex space-x-4">
                   <motion.a
-                    href="https://www.linkedin.com/in/rakshit-singh-thakur-b88a321b1/" // Update with your LinkedIn URL
+                    href="https://www.linkedin.com/in/rakshit-singh-thakur-b88a321b1/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-800 hover:bg-sky-600 p-3 rounded-full transition-colors"
@@ -236,9 +272,8 @@ export default function Contact() {
                       <circle cx="4" cy="4" r="2"></circle>
                     </svg>
                   </motion.a>
-                  
                   <motion.a
-                    href="https://github.com/axeyQ" // Update with your GitHub URL
+                    href="https://github.com/axeyQ"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-800 hover:bg-sky-600 p-3 rounded-full transition-colors"
@@ -250,47 +285,20 @@ export default function Contact() {
                       <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
                     </svg>
                   </motion.a>
-
                   <motion.a
-                    href="mailto:thakur.raxit@gmail.com" // Update with your GitHub URL
+                    href="mailto:thakur.raxit@gmail.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-800 hover:bg-sky-600 p-3 rounded-full transition-colors"
                     whileHover={{ y: -5 }}
                     whileTap={{ y: 0 }}
-                    aria-label="GitHub"
+                    aria-label="Email"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-          <polyline points="22,6 12,13 2,6"></polyline>
-        </svg>
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                      <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
                   </motion.a>
-
-
-
-                  
-                </div>
-              </div>
-              
-              <div className="p-6 rounded-2xl bg-gray-800/30 backdrop-blur-sm border border-gray-700/50">
-                <h3 className="text-xl font-bold mb-4">Languages</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">English</span>
-                    <span className="text-sky-400 text-sm">Professional</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">Hindi</span>
-                    <span className="text-sky-400 text-sm">Native</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">German</span>
-                    <span className="text-sky-400 text-sm">Elementary</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">Spanish</span>
-                    <span className="text-sky-400 text-sm">Elementary</span>
-                  </div>
                 </div>
               </div>
             </ScrollTriggerGroup>
@@ -299,12 +307,14 @@ export default function Contact() {
               <ScrollTrigger threshold={0.1} delay={0.3}>
                 <div className="p-6 rounded-2xl bg-gray-800/30 backdrop-blur-sm border border-gray-700/50">
                   <h3 className="text-2xl font-bold mb-6 text-white">Send Me a Message</h3>
-                  
                   <form
                     ref={formRef}
                     onSubmit={handleSubmit}
                     className="space-y-6 relative"
                   >
+                    {/* Add Honeypot component inside the form */}
+                    <Honeypot />
+                    
                     {/* Animated typing cursor */}
                     <motion.div
                       ref={cursorRef}
@@ -313,16 +323,20 @@ export default function Contact() {
                       animate={{ opacity: isInView ? 0.8 : 0 }}
                     />
                     
+                    {/* Status message */}
                     {submitStatus && (
                       <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`p-4 rounded-lg ${submitStatus.success ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'}`}
+                        className={`p-4 rounded-lg ${
+                          submitStatus.success ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'
+                        }`}
                       >
                         {submitStatus.message}
                       </motion.div>
                     )}
                     
+                    {/* Form fields */}
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-1">
                         Name
@@ -396,18 +410,21 @@ export default function Contact() {
                       )}
                     </div>
                     
+                    {/* Include Formspree's built-in honeypot field as well */}
+                    <input type="text" name="_gotcha" style={{ display: 'none' }} />
+                    
                     <motion.button
                       type="submit"
                       disabled={isSubmitting}
                       whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                       whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                      className={`w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-3 px-4 rounded-lg transition-colors ${
-                        isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
-                      }`}
+                      className={`w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-3 px-4 rounded-lg transition-colors 
+                        ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
                       {isSubmitting ? (
                         <span className="flex items-center justify-center">
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" 
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>

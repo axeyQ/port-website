@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export default function ProjectCard({ project, onViewDetails }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -64,7 +65,7 @@ export default function ProjectCard({ project, onViewDetails }) {
           className="absolute inset-0"
         >
           {/* Placeholder for image */}
-          {/* <Image src={project.imageUrl} alt={project.title} fill /> */}
+          <Image src={project.imageUrl} alt={project.title} fill />
         </motion.div>
         
         {/* Overlay with project tags */}
@@ -120,12 +121,13 @@ export default function ProjectCard({ project, onViewDetails }) {
               <path d="M12 5l7 7-7 7"></path>
             </svg>
           </motion.button>
-          
-          <motion.a
-            href="#"
+          {project.demoLink ===null?null
+          : <motion.a
+            href={project.demoLink}
             className="text-gray-400 hover:text-white transition-colors"
             aria-label="Live Demo"
             whileHover={{ y: -3 }}
+            target='_blank'
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -143,6 +145,7 @@ export default function ProjectCard({ project, onViewDetails }) {
               <line x1="10" y1="14" x2="21" y2="3"></line>
             </svg>
           </motion.a>
+        }
         </div>
       </div>
       

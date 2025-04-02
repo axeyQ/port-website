@@ -22,8 +22,8 @@ export default function Projects() {
       title: "Eazyposy Restaurant Management System",
       description: "A comprehensive management solution for restaurants with real-time business insights.",
       category: "work",
-      tags: ["React.js", "Tailwind CSS", "REST API"],
-      imageUrl: "/placeholder.jpg",
+      tags: ["JavaScript","HTML5","CSS3","SCSS","React.js", "Bootstrap","GSAP","JQuery", "REST API"],
+      imageUrl: "/ezpzProduct.png",
       fullDescription: "Led frontend development for a comprehensive restaurant management solution, serving 50+ restaurant clients. Initially developed with vanilla JavaScript, then migrated to ReactJS architecture for improved scalability. Integrated with Google Workplace tools and built custom dashboards that provided real-time business insights, helping clients increase operational efficiency by 28%.",
       achievements: [
         "Spearheaded frontend development utilizing ReactJS, HTML5, CSS3, and JavaScript",
@@ -32,17 +32,23 @@ export default function Projects() {
         "Built custom dashboards that provided real-time business insights"
       ],
       technologies: ["ReactJS", "HTML5", "CSS3", "JavaScript", "TailwindCSS", "Google Workplace tools"],
-      demoLink: "https://eazyposy.io",
+      demoLink: null,
       codeLink: null, // Private company code
       client: "Eazyposy Infotech Private Limited",
-      date: "June 2023 - Present"
+      date: "June 2023 - Present",
+      modal:{
+        thumbnail:["/ezpzProduct.png","/ezpzApp1.png","/ezpzApp2.png","/ezpzApp3.png"],
+        tags: ["JavaScript","HTML5","CSS3","SCSS","React.js", "Bootstrap","GSAP","JQuery","OAuth","Git","Github","VS Code","Webpack","Babel","NPM", "REST API","Figma","Chrome DevTools","Lighthouse","Google Search Console","Google Analytics","Google Tag Manager","Google Adsense"],
+        category:"Web Application"
+    },
+     
     },
     {
       id: 2,
       title: "Eazyposy Corporate Website",
       description: "Responsive company website engineered with React and advanced animations.",
       category: "work",
-      tags: ["React.js", "GSAP", "Framer Motion"],
+      tags: ["JavaScript","CSS3","TailwindCSS","React.js", "Bootstrap","MaterialUI"],
       imageUrl: "/ezpoz.png",
       fullDescription: "Engineered the company landing page utilizing ReactJS, HTML5, and CSS3 with advanced animation libraries including GSAP and Framer Motion. Designed intuitive and visually appealing UI components using Figma, improving user engagement metrics by 40%.",
       achievements: [
@@ -55,15 +61,20 @@ export default function Projects() {
       demoLink: "https://eazyposy.io",
       codeLink: null, // Private company code
       client: "Eazyposy Infotech Private Limited",
-      date: "June 2023"
+      date: "June 2024",
+      modal:{
+        thumbnail:["/ezpoz.png","/web1.png","/web2.png","/web3.png"],
+        tags: ["JavaScript","CSS3","TailwindCSS","React.js", "Bootstrap","MaterialUI","Git","Github","VS Code","Webpack","Babel","Yarn","Figma","Chrome DevTools","Lighthouse","Google Search Console","Google Analytics","Google Tag Manager","Google Adsense"],
+        category:"Website/ Landing Page"
+    },
     },
     {
       id: 3,
       title: "Muzify: Song Lyrics Contribution App",
       description: "Full-stack Next.js application for sharing and discovering song lyrics.",
       category: "personal",
-      tags: ["Next.js", "MongoDB", "NextAuth.js"],
-      imageUrl: "/placeholder.jpg",
+      tags: ["JavaScript","HTML5","NextJS","MongoDB","Mongoose","React.js","AceternityUI","RESTful APIs"],
+      imageUrl: "/muzify.png",
       fullDescription: "Developed a full-stack web application using NextJS and MongoDB that allows users to share and discover song lyrics. Applied secure authentication and authorization system using NextAuth.js and Google OAuth, handling 500+ user accounts.",
       achievements: [
         "Created RESTful API endpoints for all CRUD operations",
@@ -72,18 +83,22 @@ export default function Projects() {
         "Designed responsive UI using TailwindCSS for cross-device compatibility"
       ],
       technologies: ["Next.js", "MongoDB", "NextAuth.js", "Google OAuth", "TailwindCSS", "RESTful API"],
-      demoLink: null,
-      codeLink: "#", // Add your GitHub link here
+      demoLink: "muzify.club",
+      codeLink: "https://github.com/axeyQ/music-final", // Add your GitHub link here
       client: "Personal Project",
-      date: "2023"
+      date: "2024",
+      modal:{
+        thumbnail:["/muzify.png","/muzi1.png","/muzi2.png","/muzi3.png"],
+        tags: ["JavaScript","HTML5","MongoDB","Mongoose","NextJS","React.js","AceternityUI","NodeJS","ExpressJs","OAuth","Git","Github","VS Code","Webpack","Babel","NPM", "REST API","Figma","Chrome DevTools","Lighthouse","Google Search Console","Google Analytics","Google Tag Manager","Google Adsense"],
+      },
     },
     {
       id: 4,
       title: "Industry Pro Product Finder",
       description: "NextJS marketplace platform for discovering products across various industries.",
       category: "personal",
-      tags: ["Next.js", "OAuth", "Responsive Design"],
-      imageUrl: "/placeholder.jpg",
+      tags: ["Next.js", "TailwindCSS", "NextAuth.js", "Google OAuth", "Vercel", "CI/CD","MongoDB","Mongoose"],
+      imageUrl: "/industry.png",
       fullDescription: "Engineered a NextJS-based marketplace platform enabling users to add and discover products across various industries. Implemented role-based access control using NextAuth.js and Google OAuth for secure user management.",
       achievements: [
         "Created comprehensive database schemas and API endpoints",
@@ -91,30 +106,38 @@ export default function Projects() {
         "Implemented role-based access control using NextAuth.js",
         "Deployed on Vercel with CI/CD pipeline for seamless updates"
       ],
-      technologies: ["Next.js", "TailwindCSS", "NextAuth.js", "Google OAuth", "Vercel", "CI/CD"],
-      demoLink: null,
-      codeLink: "#", // Add your GitHub link here
+      technologies: ["Next.js", "TailwindCSS", "NextAuth.js", "Google OAuth", "Vercel", "CI/CD",],
+      demoLink: "https://industry-pro-new.vercel.app/",
+      codeLink: "https://github.com/axeyQ/industry_pro_new", // Add your GitHub link here
       client: "Personal Project",
-      date: "2023"
+      date: "2024",
+      modal:{
+        thumbnail:["/industry.png","/indus1.png","/indus2.png","/indus3.png","/indus4.png"],
+        tags: ["JavaScript","HTML5","NextJS","React.js","AceternityUI","MongoDB","Mongoose","NodeJS","ExpressJs","OAuth","NextAuth","Git","Github","VS Code","Webpack","Babel","NPM", "REST API","Figma","Chrome DevTools","Lighthouse","Google Search Console","Google Analytics","Google Tag Manager","Google Adsense"],
+      },
     },
     {
       id: 5,
       title: "Bike Booking Application",
       description: "Web application for booking bikes with inventory management.",
-      category: "personal",
-      tags: ["React.js", "Node.js", "MongoDB"],
-      imageUrl: "/placeholder.jpg",
+      category: "client",
+      tags: ["JavaScript","Convex","Nextjs", "AceternityUI",],
+      imageUrl: "/bikebooking.png",
       fullDescription: "Created a bike booking web application with inventory tracking, user management, and booking features.",
       achievements: [
         "Implemented authentication and authorization for secure bookings",
         "Built responsive interface compatible with mobile and desktop devices",
-        "Created admin dashboard for inventory management"
+        "Created admin dashboard for Bike management"
       ],
       technologies: ["React.js", "Node.js", "Express.js", "MongoDB", "TailwindCSS"],
-      demoLink: null,
+      demoLink: "https://www.mrtravelsandrentalservices.in/",
       codeLink: "#", // Add your GitHub link here
       client: "Personal Project",
-      date: "2022"
+      date: "2025",
+      modal:{
+        thumbnail:["/bikebooking.png","/mrt1.png","/mrt2.png","/mrt3.png","/mrt4.png"],
+        tags: ["JavaScript","Convex","Nextjs", "AceternityUI","Motion","NextAuth","Clerk","Git","Github","VS Code","Webpack","Babel","NPM", "REST API","Figma","Chrome DevTools","Lighthouse"],
+      },
     },
     {
       id: 6,
@@ -122,7 +145,7 @@ export default function Projects() {
       description: "Survey tool for NGOs to collect and analyze field data.",
       category: "personal",
       tags: ["React.js", "Firebase", "Data Visualization"],
-      imageUrl: "/placeholder.jpg",
+      imageUrl: "/survey.png",
       fullDescription: "Developed a survey application for NGOs to collect, organize, and visualize field data from various locations.",
       achievements: [
         "Created offline-first functionality for field workers with poor connectivity",
@@ -130,10 +153,14 @@ export default function Projects() {
         "Built user-friendly form builder for custom surveys"
       ],
       technologies: ["React.js", "Firebase", "Chart.js", "Material-UI"],
-      demoLink: null,
-      codeLink: "#", // Add your GitHub link here
+      demoLink: "https://ngo-survey-app.vercel.app/",
+      codeLink: "https://github.com/axeyQ/ngo-survey-app", // Add your GitHub link here
       client: "Personal Project",
-      date: "2022"
+      date: "2025",
+      modal:{
+        thumbnail:["/survey.png"],
+        tags: ["JavaScript","HTML5","CSS3","SCSS","React.js", "Bootstrap","GSAP","JQuery","OAuth","Git","Github","VS Code","Webpack","Babel","NPM", "REST API","Figma","Chrome DevTools","Lighthouse","Google Search Console","Google Analytics","Google Tag Manager","Google Adsense"],
+      },
     },
   ];
   
@@ -142,6 +169,8 @@ export default function Projects() {
     { id: 'all', label: 'All Projects' },
     { id: 'work', label: 'Work Projects' },
     { id: 'personal', label: 'Personal Projects' },
+    { id: 'client', label: 'Project for Client' },
+
   ];
   
   const filteredProjects = activeFilter === 'all'
