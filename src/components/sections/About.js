@@ -100,7 +100,7 @@ export default function About() {
                   Frontend Engineer
                 </h3>
                 <p className="text-gray-300 leading-relaxed">
-                  I&apos;m a <span className="text-sky-400 font-medium">Software Engineer</span> at Eazyposy Infotech, passionate about building responsive and engaging web applications that deliver exceptional user experiences.
+                  I&apos;m a <span className="text-sky-400 font-medium">Software Engineer</span> at Eazyposy Infotech Private Limited, passionate about building responsive and engaging web applications that deliver exceptional user experiences.
                 </p>
               </div>
 
@@ -138,7 +138,7 @@ export default function About() {
                 </h3>
                 <div className="space-y-4">
                   <p className="text-gray-300 leading-relaxed">
-                    At <span className="text-sky-400 font-medium">Eazyposy Infotech</span>, I&apos;ve led frontend development for multiple projects, including the company website and restaurant management system, reducing load times by 40% and increasing user engagement.
+                    At <span className="text-sky-400 font-medium">Eazyposy Infotech Private Limited</span>, I&apos;ve led frontend development for multiple projects, including the company website and restaurant management system, reducing load times by 40% and increasing user engagement.
                   </p>
                   <p className="text-gray-300 leading-relaxed">
                     I collaborate closely with designers and backend developers to implement new features, integrate third-party APIs, and optimize application performance.

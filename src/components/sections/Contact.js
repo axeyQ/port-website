@@ -408,7 +408,7 @@ export default function Contact() {
                       {errors.message && (
                         <p className="mt-1 text-sm text-red-500">{errors.message}</p>
                       )}
-                    </div>
+                    </div> 
                     
                     {/* Include Formspree's built-in honeypot field as well */}
                     <input type="text" name="_gotcha" style={{ display: 'none' }} />
